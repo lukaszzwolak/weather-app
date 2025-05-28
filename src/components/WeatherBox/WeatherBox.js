@@ -40,6 +40,7 @@ const WeatherBox = () => {
       });
   }, []);
 
+
   return (
     <section>
       <PickCity onCityChange={handleCityChange} />
