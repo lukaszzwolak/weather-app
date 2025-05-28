@@ -5,47 +5,44 @@ import Loader from '../Loader/Loader';
 
 const WeatherBox = () => {
   const [weatherData, setWeatherData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const handleCityChange = useCallback((cityName) => {
     const API_KEY = '598bbe720edc468666f531299149ec6b';
 
-    setLoading(true);
+    setPending(true);
+
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}&units=metric`)
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-
-        if (data.cod !== 200) {
-          console.error('Błąd API:', data.message);
+      .then(res => {
+        if (res.status === 200) {
+          return res.json().then(data => {
+            const formattedData = {
+              city: data.name,
+              temp: data.main.temp,
+              icon: data.weather[0].icon,
+              description: data.weather[0].main
+            };
+            setWeatherData(formattedData);
+          });
+        } else {
           setWeatherData(null);
-          return;
+          alert('City not found. Please check the name and try again.');
         }
-
-        const formattedData = {
-          city: data.name,
-          temp: data.main.temp,
-          icon: data.weather[0].icon,
-          description: data.weather[0].main
-        };
-
-        setWeatherData(formattedData);
       })
       .catch(error => {
-        console.error('Błąd połączenia z API:', error);
+        console.error('Error connection with API:', error);
         setWeatherData(null);
       })
       .finally(() => {
-        setLoading(false);
+        setPending(false);
       });
   }, []);
-
 
   return (
     <section>
       <PickCity onCityChange={handleCityChange} />
-      {loading && <Loader />}
-      {!loading && weatherData && (
+      {pending && <Loader />}
+      {!pending && weatherData && (
         <WeatherSummary
           city={weatherData.city}
           temperature={weatherData.temp}
