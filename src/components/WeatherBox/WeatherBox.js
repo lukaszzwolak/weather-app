@@ -2,14 +2,17 @@ import { useCallback, useState } from 'react';
 import PickCity from '../PickCity/PickCity';
 import WeatherSummary from '../WeatherSummary/WeatherSummary';
 import Loader from '../Loader/Loader';
+import ErrorBox from '../ErrorBox/ErrorBox';
 
 const WeatherBox = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [pending, setPending] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const handleCityChange = useCallback((cityName) => {
     const API_KEY = '598bbe720edc468666f531299149ec6b';
 
+    setHasError(false);
     setPending(true);
 
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}&units=metric`)
@@ -20,17 +23,18 @@ const WeatherBox = () => {
               city: data.name,
               temp: data.main.temp,
               icon: data.weather[0].icon,
-              description: data.weather[0].main
+              description: data.weather[0].main,
             };
             setWeatherData(formattedData);
           });
         } else {
+          setHasError(true);
           setWeatherData(null);
-          alert('City not found. Please check the name and try again.');
         }
       })
       .catch(error => {
-        console.error('Error connection with API:', error);
+        console.error('Błąd połączenia z API:', error);
+        setHasError(true);
         setWeatherData(null);
       })
       .finally(() => {
@@ -42,7 +46,8 @@ const WeatherBox = () => {
     <section>
       <PickCity onCityChange={handleCityChange} />
       {pending && <Loader />}
-      {!pending && weatherData && (
+      {hasError && <ErrorBox />}
+      {!pending && weatherData && !hasError && (
         <WeatherSummary
           city={weatherData.city}
           temperature={weatherData.temp}
