@@ -1,19 +1,17 @@
 import styles from './WeatherSummary.module.scss';
 
-const WeatherSummary = () => {
+const WeatherSummary = ({ city, temperature, description, icon }) => {
   return (
-    <section className={styles.weatherSummary}>
+    <div className={styles.weatherSummary}>
+      <h2>{city}</h2>
+      <p>{temperature}°C</p>
+      <p>{description}</p>
       <img
         className={styles.weatherIcon}
-        alt="????"
-        src={`${process.env.PUBLIC_URL}/images/weather-icons/13d.png`} />
-      <div className={styles.weatherInfo}>
-        <h2>London</h2>
-        <p>
-          <strong>Temp:</strong> 20°C
-        </p>
-      </div>
-    </section>
+        alt={description}
+        src={`${process.env.PUBLIC_URL}/images/weather-icons/${icon}.png`}
+      />
+    </div>
   );
 };
 
